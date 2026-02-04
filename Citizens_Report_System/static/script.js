@@ -66,7 +66,7 @@ function initMap() {
         return;
     }
     
-    map = L.map('map').setView([-25.2637, -57.5759], 13);
+    map = L.map('map').setView([-25.257574,-57.586483], 13);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors',
@@ -216,47 +216,34 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function cargarReportes() {
     const estado = document.getElementById('filtro-estado').value;
-    const categoria = document.getElementById('filtro-categoria').value;
     const container = document.getElementById('lista-reportes');
-
+    
     container.innerHTML = '<p class="cargando">Cargando reportes...</p>';
-
+    
     try {
-        let params = new URLSearchParams();
-
-        if (estado && estado !== 'Todos') {
-            params.append('estado', estado);
-        }
-
-        if (categoria && categoria !== 'Todas') {
-            params.append('categoria', categoria);
-        }
-
-        const url = params.toString()
-            ? `/api/reportes?${params.toString()}`
-            : '/api/reportes';
-
+        const url = estado === 'Todos' 
+            ? '/api/reportes' 
+            : `/api/reportes?estado=${encodeURIComponent(estado)}`;
+            
         const response = await fetch(url);
         const reportes = await response.json();
-
+        
         if (reportes.length === 0) {
             container.innerHTML = '<p class="cargando">No hay reportes para mostrar.</p>';
             return;
         }
-
+        
         // Renderizar reportes
         container.innerHTML = '';
         reportes.forEach(reporte => {
             const card = crearTarjetaReporte(reporte);
             container.appendChild(card);
         });
-
+        
     } catch (error) {
-        console.error(error);
         container.innerHTML = '<p class="cargando">Error al cargar reportes.</p>';
     }
 }
-
 
 function obtenerIconoCategoria(categoria) {
     const iconos = {

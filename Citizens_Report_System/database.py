@@ -177,24 +177,26 @@ def crear_reporte(ubicacion, comentario, foto, lat=None, lng=None, categoria='Ot
     return reporte_id
 
 
-def obtener_reportes(estado=None, categoria=None):
+def obtener_reportes(estado=None):
+    """
+    Obtiene todos los reportes, opcionalmente filtrados por estado.
+    Retorna una lista de diccionarios.
+    """
     conn = get_db()
-    query = "SELECT * FROM reportes WHERE 1=1"
-    params = []
-
+    
     if estado and estado != 'Todos':
-        query += " AND estado = ?"
-        params.append(estado)
-
-    if categoria and categoria != 'Todas':
-        query += " AND categoria = ?"
-        params.append(categoria)
-
-    query += " ORDER BY fecha_creacion DESC"
-
-    reportes = conn.execute(query, params).fetchall()
+        reportes = conn.execute(
+            'SELECT * FROM reportes WHERE estado = ? ORDER BY fecha_creacion DESC',
+            (estado,)
+        ).fetchall()
+    else:
+        reportes = conn.execute(
+            'SELECT * FROM reportes ORDER BY fecha_creacion DESC'
+        ).fetchall()
+    
     conn.close()
-
+    
+    # Convertir Row objects a diccionarios
     return [dict(r) for r in reportes]
 
 
